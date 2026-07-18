@@ -941,8 +941,15 @@ function Splash({onEnter}) {
 function CartDrawer({cart, onClose, onRemove, onSend}) {
   const total = cart.reduce((s,c)=>s+c.totalPrice, 0);
   const [showForm, setShowForm] = React.useState(false);
-  const [nombre, setNombre] = React.useState('');
-  const [direccion, setDireccion] = React.useState('');
+  // Pre-llenar datos de clientes recurrentes: parámetros del link (enviados por el bot) o localStorage
+  const [nombre, setNombre] = React.useState(() => {
+    try { return new URLSearchParams(location.search).get('nombre') || localStorage.getItem('lc_nombre') || ''; }
+    catch { return ''; }
+  });
+  const [direccion, setDireccion] = React.useState(() => {
+    try { return new URLSearchParams(location.search).get('direccion') || localStorage.getItem('lc_dir') || ''; }
+    catch { return ''; }
+  });
   const [errNombre, setErrNombre] = React.useState(false);
   const [errDireccion, setErrDireccion] = React.useState(false);
 
@@ -951,6 +958,7 @@ function CartDrawer({cart, onClose, onRemove, onSend}) {
     if (!nombre.trim()) { setErrNombre(true); ok = false; } else { setErrNombre(false); }
     if (!direccion.trim()) { setErrDireccion(true); ok = false; } else { setErrDireccion(false); }
     if (!ok) return;
+    try { localStorage.setItem('lc_nombre', nombre.trim()); localStorage.setItem('lc_dir', direccion.trim()); } catch {}
     const lines = ['🥞 *PEDIDO - LAS CREPES*\n'];
     lines.push(`👤 *Nombre:* ${nombre.trim()}`);
     lines.push(`📍 *Dirección:* ${direccion.trim()}\n`);
